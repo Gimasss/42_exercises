@@ -1,32 +1,116 @@
-// Passed Moulinette 2019.09.01
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 #include "list.h"
 
-void	swap_values(t_list *a, t_list *b)
+t_list	*sort_list(t_list *lst, int (*cmp)(int, int))
 {
-	int swap = a->data;
-	a->data = b->data;
-	b->data = swap;
+	t_list	*start;
+	int		tmp;
+	int		sorted;
+
+	if (!lst)
+		return (NULL);
+	sorted = 0;
+	start = lst;
+	while (!sorted)
+	{
+		sorted = 1;
+		lst = start;
+		while (lst->next)
+		{
+			if (!cmp(lst->data, lst->next->data))
+			{
+				tmp = lst->data;
+				lst->data = lst->next->data;
+				lst->next->data = tmp;
+				sorted = 0;
+			}
+			lst = lst->next;
+		}
+	}
+	return (start);
 }
 
-t_list	*sort_list(t_list* lst, int (*cmp)(int, int))
-{
-	int swapped = 1;
-	t_list *cur = lst;
 
-	while (swapped == 1)
+//////////////////////////////////
+// alternativa
+t_list	*sort_list(t_list *lst, int (*cmp)(int, int))
+{
+	int	swap;//temp
+	t_list	*start;
+
+	start = lst;
+	while (lst != NULL && lst->next != NULL)
 	{
-		swapped = 0;
-		while (cur != 0 && cur->next != 0)
+		if ((*cmp)(lst->data, lst->next->data) == 0)// se uguale a zero non e' ordinato
 		{
-			if (cmp(cur->data, cur->next->data) == 0)
-			{
-				swap_values(cur, cur->next);
-				swapped = 1;
-			}
-			cur = cur->next;
+			swap = lst->data;
+			lst->data = lst->next->data;
+			lst->next->data = swap;
+			lst = start;
 		}
-		cur = lst;
+		else
+			lst = lst->next; // vai l nodo succ
+		return (start);
 	}
-	return (lst);
+}
+
+
+// int ascending(int a, int b)
+// {
+// 	return (a >= b);
+// }
+
+//TO TEST
+// Funzione per creare un nuovo nodo
+t_list *create_node(int value)
+{
+	t_list *node = malloc(sizeof(t_list));
+	if (!node)
+		return (NULL);
+	node->data = value;
+	node->next = NULL;
+	return (node);
+}
+
+// Funzione per stampare la lista
+void print_list(t_list *head)
+{
+	while (head)
+	{
+		printf("%d ", head->data);
+		head = head->next;
+	}
+	printf("\n");
+}
+
+int main(void)
+{
+	// Creo manualmente la lista: 3 -> 1 -> 4 -> 2
+	t_list *n1 = create_node(3);
+	t_list *n2 = create_node(1);
+	t_list *n3 = create_node(4);
+	t_list *n4 = create_node(2);
+
+	n1->next = n2;
+	n2->next = n3;
+	n3->next = n4;
+
+	printf("Lista prima dell'ordinamento:\n");
+	print_list(n1);
+
+	t_list *sorted = sort_list(n1, ascending);
+
+	printf("Lista dopo l'ordinamento:\n");
+	print_list(sorted);
+
+	// Pulizia memoria (opzionale)
+	free(n1);
+	free(n2);
+	free(n3);
+	free(n4);
+
+	return 0;
 }
