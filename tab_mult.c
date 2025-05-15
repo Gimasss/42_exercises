@@ -42,7 +42,7 @@ void putc(char c)
 void putn(int n)
 {
 	if (n > 9)
-	putn(n / 10);
+		putn(n / 10);
 	putc(n % 10 + 48);
 
 }
